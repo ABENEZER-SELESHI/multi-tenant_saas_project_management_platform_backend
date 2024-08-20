@@ -1,6 +1,17 @@
-# Project Management Platform — API
+# ProjectFlow — API
 
-Multi-tenant SaaS project management platform backend built with Express, TypeScript, and PostgreSQL.
+Multi-tenant SaaS project management platform backend. Express, TypeScript, PostgreSQL, Prisma.
+
+## Features
+
+- Multi-tenant organization isolation with RBAC
+- JWT authentication with refresh token rotation
+- Projects, tasks, kanban boards, sprints, subtasks
+- Comments with @mentions, file attachments (S3/MinIO)
+- Real-time updates via WebSocket (Socket.IO)
+- Notifications (in-app + email), global search
+- Dashboards, reports, time tracking, audit logs
+- Billing-ready subscription schema
 
 ## Prerequisites
 
@@ -10,66 +21,49 @@ Multi-tenant SaaS project management platform backend built with Express, TypeSc
 
 ## Quick Start
 
-1. Install dependencies:
-
 ```bash
 npm install
-```
-
-2. Copy environment variables:
-
-```bash
 cp .env.example .env
-```
-
-3. Start infrastructure services:
-
-```bash
 docker compose up -d
-```
-
-4. Run the development server:
-
-```bash
+npx prisma migrate deploy
+npm run db:seed
 npm run dev
 ```
 
-The API will be available at `http://localhost:4000`.
-
-## Health Checks
-
-- Liveness: `GET /api/v1/health`
-- Readiness: `GET /api/v1/health/ready`
+API: `http://localhost:4000/api/v1`
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Compile TypeScript to dist |
-| `npm start` | Run production build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format code with Prettier |
-| `npm run typecheck` | Type-check without emitting |
+| `npm run dev` | Development server |
+| `npm run build` | Compile TypeScript |
+| `npm start` | Production server |
+| `npm test` | Run tests |
+| `npm run db:migrate` | Run migrations |
+| `npm run db:seed` | Seed subscription plans |
+
+## Documentation
+
+- [API Reference](docs/API.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment](docs/DEPLOYMENT.md)
 
 ## Project Structure
 
 ```
 src/
-├── config/         Environment and app configuration
-├── constants/      Enums and static values
-├── controllers/    HTTP request handlers
-├── database/       Prisma client and migrations
-├── interfaces/     Service and repository contracts
-├── middleware/     Express middleware
-├── repositories/   Data access layer
-├── routes/         API route definitions
+├── config/         Environment configuration
+├── constants/      RBAC permissions
+├── controllers/    HTTP handlers
+├── database/       Prisma client, seed
+├── middleware/     Auth, tenant, RBAC, validation
+├── routes/v1/      Versioned API routes
 ├── services/       Business logic
-├── types/          Shared TypeScript types
-├── utils/          Helpers and utilities
-├── validators/     Request validation schemas
-├── app.ts          Express application setup
-└── server.ts       HTTP server entry point
+├── validators/     Zod schemas
+├── websocket/      Socket.IO handlers
+├── jobs/           Scheduled tasks
+└── utils/          Shared utilities
 ```
 
 ## License
