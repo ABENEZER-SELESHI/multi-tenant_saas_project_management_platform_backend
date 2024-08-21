@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { TaskStatus } from '@prisma/client';
 import { sendSuccess } from '../utils/apiResponse';
 import { taskService } from '../services/task.service';
 import {
+  AssignTaskInput,
   BoardBulkUpdateInput,
+  ChangeTaskStatusInput,
   CreateTaskInput,
+  DuplicateTaskInput,
   ListTasksQuery,
+  TaskLabelsInput,
   UpdateTaskInput,
 } from '../validators/task.validator';
 
@@ -66,11 +69,12 @@ export class TaskController {
 
   assign = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as AssignTaskInput;
       const task = await taskService.assign(
         req.organizationId!,
         req.params.taskId,
         req.userId!,
-        req.body.assigneeId,
+        body.assigneeId,
       );
       sendSuccess(res, task, 'Task assigned');
     } catch (err) {
@@ -80,11 +84,12 @@ export class TaskController {
 
   changeStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as ChangeTaskStatusInput;
       const task = await taskService.changeStatus(
         req.organizationId!,
         req.params.taskId,
         req.userId!,
-        req.body.status as TaskStatus,
+        body.status,
       );
       sendSuccess(res, task, 'Task status updated');
     } catch (err) {
@@ -94,11 +99,12 @@ export class TaskController {
 
   setLabels = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as TaskLabelsInput;
       const task = await taskService.setLabels(
         req.organizationId!,
         req.params.taskId,
         req.userId!,
-        req.body.labelIds,
+        body.labelIds,
       );
       sendSuccess(res, task, 'Task labels updated');
     } catch (err) {
@@ -108,11 +114,12 @@ export class TaskController {
 
   duplicate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as DuplicateTaskInput;
       const task = await taskService.duplicate(
         req.organizationId!,
         req.params.taskId,
         req.userId!,
-        req.body.includeSubtasks ?? false,
+        body.includeSubtasks ?? false,
       );
       sendSuccess(res, task, 'Task duplicated', 201);
     } catch (err) {

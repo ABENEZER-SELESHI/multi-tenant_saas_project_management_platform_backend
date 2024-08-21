@@ -31,17 +31,19 @@ const start = async (): Promise<void> => {
   }
 };
 
-const shutdown = async (signal: string): Promise<void> => {
+const shutdown = (signal: string): void => {
   logger.info(`${signal} received, shutting down gracefully`);
-  httpServer.close(async () => {
-    await disconnectDatabase();
-    await disconnectRedis();
-    logger.info('Server shut down');
-    process.exit(0);
+  httpServer.close(() => {
+    void (async () => {
+      await disconnectDatabase();
+      await disconnectRedis();
+      logger.info('Server shut down');
+      process.exit(0);
+    })();
   });
 };
 
-process.on('SIGTERM', () => void shutdown('SIGTERM'));
-process.on('SIGINT', () => void shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 void start();

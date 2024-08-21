@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendSuccess } from '../utils/apiResponse';
 import { teamService } from '../services/team.service';
 import {
+  AddTeamMemberInput,
   CreateTeamInput,
   ListTeamsQuery,
   UpdateTeamInput,
@@ -64,11 +65,12 @@ export class TeamController {
 
   addMember = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as AddTeamMemberInput;
       const member = await teamService.addMember(
         req.organizationId!,
         req.params.teamId,
         req.userId!,
-        req.body.userId,
+        body.userId,
       );
       sendSuccess(res, member, 'Member added', 201);
     } catch (err) {

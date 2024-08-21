@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { sendSuccess } from '../utils/apiResponse';
 import { projectService } from '../services/project.service';
 import {
+  AssignProjectMemberInput,
+  AssignProjectTeamInput,
   CreateProjectInput,
   ListProjectsQuery,
   UpdateProjectInput,
@@ -77,12 +79,13 @@ export class ProjectController {
 
   assignMember = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as AssignProjectMemberInput;
       const member = await projectService.assignMember(
         req.organizationId!,
         req.params.projectId,
         req.userId!,
-        req.body.userId,
-        req.body.role,
+        body.userId,
+        body.role,
       );
       sendSuccess(res, member, 'Member assigned', 201);
     } catch (err) {
@@ -106,11 +109,12 @@ export class ProjectController {
 
   assignTeam = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as AssignProjectTeamInput;
       const projectTeam = await projectService.assignTeam(
         req.organizationId!,
         req.params.projectId,
         req.userId!,
-        req.body.teamId,
+        body.teamId,
       );
       sendSuccess(res, projectTeam, 'Team assigned', 201);
     } catch (err) {

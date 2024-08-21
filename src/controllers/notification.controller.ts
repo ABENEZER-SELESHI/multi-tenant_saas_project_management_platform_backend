@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess } from '../utils/apiResponse';
 import { notificationService } from '../services/notification.service';
-import { ListNotificationsQuery } from '../validators/notification.validator';
+import {
+  ListNotificationsQuery,
+  MarkNotificationsReadInput,
+} from '../validators/notification.validator';
+import { UpdateNotificationPreferencesInput } from '../validators/user.validator';
 
 export class NotificationController {
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -31,11 +35,12 @@ export class NotificationController {
 
   markRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as MarkNotificationsReadInput;
       const result = await notificationService.markRead(
         req.organizationId!,
         req.userId!,
-        req.body.notificationIds,
-        req.body.markAll,
+        body.notificationIds,
+        body.markAll,
       );
       sendSuccess(res, result, 'Notifications marked as read');
     } catch (err) {
@@ -57,10 +62,11 @@ export class NotificationController {
 
   updatePreferences = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const body = req.body as UpdateNotificationPreferencesInput;
       const prefs = await notificationService.updatePreferences(
         req.organizationId!,
         req.userId!,
-        req.body.preferences,
+        body.preferences,
       );
       sendSuccess(res, prefs, 'Preferences updated');
     } catch (err) {

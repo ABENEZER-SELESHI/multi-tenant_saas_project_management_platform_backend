@@ -48,3 +48,5 @@ export const assignProjectTeamSchema = z.object({
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
+export type AssignProjectMemberInput = z.infer<typeof assignProjectMemberSchema>;
+export type AssignProjectTeamInput = z.infer<typeof assignProjectTeamSchema>;

@@ -4,10 +4,12 @@ import { verifyAccessToken } from '../utils/jwt';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
 
-export interface SocketUser {
+interface SocketAuthData {
   userId: string;
   organizationId?: string;
 }
+
+const getSocketData = (socket: Socket): SocketAuthData => socket.data as SocketAuthData;
 
 export let io: Server | null = null;
 
@@ -25,7 +27,7 @@ export const initWebSocket = (server: HttpServer): Server => {
     }
     try {
       const payload = verifyAccessToken(token);
-      socket.data.userId = payload.sub;
+      getSocketData(socket).userId = payload.sub;
       next();
     } catch {
       next(new Error('Invalid token'));
@@ -33,36 +35,37 @@ export const initWebSocket = (server: HttpServer): Server => {
   });
 
   io.on('connection', (socket: Socket) => {
-    const userId = socket.data.userId as string;
+    const data = getSocketData(socket);
+    const userId = data.userId;
     logger.debug('WebSocket connected', { userId, socketId: socket.id });
 
-    socket.join(`user:${userId}`);
+    void socket.join(`user:${userId}`);
 
     socket.on('join:organization', (orgId: string) => {
-      socket.join(`org:${orgId}`);
-      socket.data.organizationId = orgId;
+      void socket.join(`org:${orgId}`);
+      data.organizationId = orgId;
     });
 
     socket.on('join:project', (projectId: string) => {
-      const orgId = socket.data.organizationId as string | undefined;
+      const orgId = data.organizationId;
       if (orgId) {
-        socket.join(`org:${orgId}:project:${projectId}`);
+        void socket.join(`org:${orgId}:project:${projectId}`);
       }
     });
 
     socket.on('join:task', (taskId: string) => {
-      const orgId = socket.data.organizationId as string | undefined;
+      const orgId = data.organizationId;
       if (orgId) {
-        socket.join(`org:${orgId}:task:${taskId}`);
+        void socket.join(`org:${orgId}:task:${taskId}`);
       }
     });
 
-    socket.on('presence:update', (data: { projectId: string; status: string }) => {
-      const orgId = socket.data.organizationId as string | undefined;
+    socket.on('presence:update', (presence: { projectId: string; status: string }) => {
+      const orgId = data.organizationId;
       if (orgId) {
-        socket.to(`org:${orgId}:project:${data.projectId}`).emit('presence:update', {
+        socket.to(`org:${orgId}:project:${presence.projectId}`).emit('presence:update', {
           userId,
-          status: data.status,
+          status: presence.status,
         });
       }
     });
@@ -79,20 +82,20 @@ export const emitToProject = (
   organizationId: string,
   projectId: string,
   event: string,
-  data: unknown,
+  payload: unknown,
 ): void => {
-  io?.to(`org:${organizationId}:project:${projectId}`).emit(event, data);
+  io?.to(`org:${organizationId}:project:${projectId}`).emit(event, payload);
 };
 
-export const emitToUser = (userId: string, event: string, data: unknown): void => {
-  io?.to(`user:${userId}`).emit(event, data);
+export const emitToUser = (userId: string, event: string, payload: unknown): void => {
+  io?.to(`user:${userId}`).emit(event, payload);
 };
 
 export const emitToTask = (
   organizationId: string,
   taskId: string,
   event: string,
-  data: unknown,
+  payload: unknown,
 ): void => {
-  io?.to(`org:${organizationId}:task:${taskId}`).emit(event, data);
+  io?.to(`org:${organizationId}:task:${taskId}`).emit(event, payload);
 };

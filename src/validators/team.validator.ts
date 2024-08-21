@@ -30,3 +30,4 @@ export const listTeamsQuerySchema = paginationSchema.extend({
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;
 export type UpdateTeamInput = z.infer<typeof updateTeamSchema>;
 export type ListTeamsQuery = z.infer<typeof listTeamsQuerySchema>;
+export type AddTeamMemberInput = z.infer<typeof addTeamMemberSchema>;

@@ -1,6 +1,6 @@
 import { prisma } from './prisma';
 
-async function main() {
+async function main(): Promise<void> {
   const freePlan = await prisma.subscriptionPlan.upsert({
     where: { slug: 'free' },
     create: {
@@ -26,10 +26,10 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch((e: unknown) => {
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
+  .finally(() => {
+    void prisma.$disconnect();
   });

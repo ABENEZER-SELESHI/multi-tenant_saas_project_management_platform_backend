@@ -82,3 +82,7 @@ export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;
 export type BoardBulkUpdateInput = z.infer<typeof boardBulkUpdateSchema>;
+export type AssignTaskInput = z.infer<typeof assignTaskSchema>;
+export type ChangeTaskStatusInput = z.infer<typeof changeTaskStatusSchema>;
+export type TaskLabelsInput = z.infer<typeof taskLabelsSchema>;
+export type DuplicateTaskInput = z.infer<typeof duplicateTaskSchema>;
